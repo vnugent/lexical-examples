@@ -2,26 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.editor-input {
+  min-height: 150px;
+  resize: none;
+  caret-color: rgb(5, 5, 5);
+  position: relative;
+  tab-size: 1;
+  caret-color: #444;
+  @apply outline-1 p-2 py-2;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.editor-placeholder {
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+  display: inline-block;
+  pointer-events: none;
+  @apply absolute top-2 left-2;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.editor-paragraph {
+  margin: 0 0 15px 0;
+  position: relative;
+}
+
+.editor-container {
+  @apply border-2 relative;
+}
+
+button {
+  @apply border rounded border-neutral-800 px-4;
+}
+
+
+.tree-view-output {
+  @apply text-xs mt-6;
+}
+
+.task-container {
+  @apply rounded-md bg-slate-200 p-2 my-2;
+}
+
+.task-container input:focus {
+  border: none;
+  outline: none;
+}
+
+.task-container textarea:focus {
+  border: none;
+  outline: none;
 }

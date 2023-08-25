@@ -3,7 +3,7 @@ const exampleTheme = {
   rtl: "rtl",
   placeholder: "editor-placeholder",
   paragraph: "editor-paragraph",
-  task: 'rounded-md border-2 border-pink-400 my-1 mx-2 border-dotted'
+  task: 'task-container'
 }
 
 export default exampleTheme

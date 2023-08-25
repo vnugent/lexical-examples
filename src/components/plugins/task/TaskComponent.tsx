@@ -26,9 +26,17 @@ export const TaskComponent: React.FC<TaskProps> = ({
     })
   }
 
+  const onDelete = () => {
+    editor.update(() => {
+      taskNode.remove()
+    })
+  }
+
   return (
-    <div className="bg-pink-100 rounded-md">
-      <h2>Task</h2>
+    <>
+      <div className="my-2 flex justify-end">
+        <button onClick={onDelete}>Delete</button>
+      </div>
       <div className="flex flex-col gap-2">
         <input
           placeholder="Task title"
@@ -41,6 +49,6 @@ export const TaskComponent: React.FC<TaskProps> = ({
           onChange={onDescChange}
         />
       </div>
-    </div>
+    </>
   )
 }

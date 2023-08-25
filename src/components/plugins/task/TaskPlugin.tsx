@@ -1,24 +1,18 @@
 import {
-  COMMAND_PRIORITY_LOW,
   createCommand,
   type EditorConfig,
   type LexicalNode,
-  $getSelection,
-  $isRangeSelection,
-  ElementNode,
-  type RangeSelection,
-  $createParagraphNode,
   type NodeKey,
   SerializedLexicalNode,
   LexicalEditor,
   DecoratorNode,
   $insertNodes,
-  $isRootOrShadowRoot,
+  COMMAND_PRIORITY_NORMAL,
 } from "lexical"
-import { $wrapNodeInElement, $insertNodeToNearestRoot } from "@lexical/utils"
-
+import { $insertNodeToNearestRoot } from "@lexical/utils"
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
 import { $wrapNodes } from "@lexical/selection"
+
 import { TaskComponent } from "./TaskComponent"
 
 export type SerializedTaskNode = {
@@ -114,25 +108,21 @@ export function $isBannerNode(node: LexicalNode): node is TaskNode {
   return node instanceof TaskNode
 }
 
-export const INSERT_BANNER_COMMAND = createCommand("insertBanner")
+export const INSERT_BANNER_COMMAND = createCommand("insertTask")
 
-export function ActionPlugin(): null {
+export function TaskPlugin(): null {
   const [editor] = useLexicalComposerContext()
   if (!editor.hasNodes([TaskNode])) {
-    throw new Error("BannerPlugin: BannerNode not registered on editor")
+    throw new Error("TaskPlugin: TaskPlugin not registered on editor")
   }
   editor.registerCommand(
     INSERT_BANNER_COMMAND,
     () => {
       const taskNode = $createTaskNode()
-      // $insertNodes([taskNode])
       $insertNodeToNearestRoot(taskNode)
-      // if ($isRootOrShadowRoot(taskNode.getParentOrThrow())) {
-      //   $wrapNodeInElement(taskNode, $createParagraphNode).selectEnd()
-      // }
       return true
     },
-    COMMAND_PRIORITY_LOW
+    COMMAND_PRIORITY_NORMAL
   )
   return null
 }

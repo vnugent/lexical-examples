@@ -1,5 +1,5 @@
 import { TaskNode } from '@/components/plugins/task/TaskPlugin'
-import ExampleTheme from "../../exampleTheme"
+import ExampleTheme from "./exampleTheme"
 
 const editorConfig = {
   namespace: 'demo',

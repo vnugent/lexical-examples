@@ -5,13 +5,11 @@
 .editor-input {
   min-height: 150px;
   resize: none;
-  font-size: 15px;
   caret-color: rgb(5, 5, 5);
   position: relative;
   tab-size: 1;
-  /* outline: 0; */
   caret-color: #444;
-  @apply outline-1 pl-2 py-2;
+  @apply outline-1 p-2 py-2;
 }
 
 .editor-placeholder {
@@ -30,7 +28,7 @@
 }
 
 .editor-container {
-  @apply relative;
+  @apply border-2 relative;
 }
 
 button {
@@ -40,4 +38,18 @@ button {
 
 .tree-view-output {
   @apply text-xs mt-6;
+}
+
+.task-container {
+  @apply rounded-md bg-slate-200 p-2 my-2;
+}
+
+.task-container input:focus {
+  border: none;
+  outline: none;
+}
+
+.task-container textarea:focus {
+  border: none;
+  outline: none;
 }

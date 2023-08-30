@@ -1,6 +1,8 @@
 import { ChangeEventHandler } from "react"
-import { TaskNode } from "./TaskPlugin"
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+import { TaskNode } from "./TaskPlugin"
+
+import { Button } from "@/components/ui/button"
 interface TaskProps {
   title?: string
   desc?: string
@@ -35,7 +37,9 @@ export const TaskComponent: React.FC<TaskProps> = ({
   return (
     <>
       <div className="my-2 flex justify-end">
-        <button onClick={onDelete}>Delete</button>
+        <Button onClick={onDelete} variant="destructive">
+          Delete
+        </Button>
       </div>
       <div className="flex flex-col gap-2">
         <input

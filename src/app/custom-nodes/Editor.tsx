@@ -13,6 +13,7 @@ import {
 import editorConfig from "@/components/editorConfig"
 import { SerializerPreview } from "@/components/plugins/SerializerPreview"
 import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
+import { Button } from "@/components/ui/button"
 
 export default function Editor() {
   return (
@@ -46,7 +47,7 @@ function Toolbar(): JSX.Element {
   }
   return (
     <div className="my-2 flex gap-2">
-      <button onClick={onCreateTask}>Create Task</button>
+      <Button onClick={onCreateTask}>Create Task</Button>
     </div>
   )
 }

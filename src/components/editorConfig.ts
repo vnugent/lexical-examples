@@ -1,3 +1,4 @@
+import { LinkNode } from '@lexical/link'
 import { TaskNode } from '@/components/plugins/task/TaskPlugin'
 import ExampleTheme from "./exampleTheme"
 
@@ -7,7 +8,7 @@ const editorConfig = {
   onError(error: any) {
     throw error
   },
-  nodes: [TaskNode]
+  nodes: [TaskNode, LinkNode]
 }
 
 export default editorConfig

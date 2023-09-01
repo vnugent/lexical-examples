@@ -13,7 +13,7 @@ import { SerializerPreview } from "@/components/plugins/SerializerPreview"
 import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
 import FloatingTextFormatToolbarPlugin from "@/components/plugins/FloatingToolbarPlugin"
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin"
-import FloatingLinkEditorPlugin from "@/components/plugins/FloatingLinkEditorPlugin"
+import FloatingLinkEditorPlugin from "@/components/plugins/FloatingLinkEditorPlugin2"
 
 export default function Editor() {
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<

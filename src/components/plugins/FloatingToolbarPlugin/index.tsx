@@ -30,6 +30,7 @@ import { getDOMRangeRect } from "@/utils/getDOMRangeRect"
 import { getSelectedNode } from "@/utils/getSelectedNode"
 import { setFloatingElemPosition } from "@/utils/setFloatingElemPosition"
 import { FormatButton } from "./FormatButton"
+import { EDIT_LINK_COMMAND } from "../FloatingLinkEditorPlugin2/LinkEditorPlugin"
 
 function TextFormatFloatingToolbar({
   editor,
@@ -59,7 +60,7 @@ function TextFormatFloatingToolbar({
   const insertLink = useCallback(() => {
     console.log("#insertLink")
     if (!isLink) {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, "https://")
+      editor.dispatchCommand(EDIT_LINK_COMMAND, null)
     } else {
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
     }

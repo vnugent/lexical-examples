@@ -32,7 +32,7 @@ import {
 } from "lexical"
 
 import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin"
-import { Dispatch, useCallback, useEffect, useRef, useState } from "react"
+import { Dispatch, useEffect, useRef, useState } from "react"
 import { getSelectedNode } from "@/utils/getSelectedNode"
 import { XIcon } from "lucide-react"
 import {
@@ -46,6 +46,8 @@ import {
 import { setFloatingElemPositionForLinkEditor } from "@/utils/setFloatingElemPositionForLinkEditor"
 import { sanitizeUrl } from "@/utils/url"
 import { Button } from "@/components/ui/button"
+import { LinkEditorPlugin, EDIT_LINK_COMMAND } from "./LinkEditorPlugin"
+import { getLinkNodeInfo } from "@/utils/getLinkNodeInfo"
 
 function FloatingLinkEditor({
   editor,
@@ -56,102 +58,14 @@ function FloatingLinkEditor({
   editor: LexicalEditor
   isLink: boolean
   setIsLink: Dispatch<boolean>
-  anchorElem: HTMLElement
+  anchorElem?: HTMLElement
 }): JSX.Element {
-  const editorRef = useRef<HTMLDivElement | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
   const [linkUrl, setLinkUrl] = useState("")
-  const [editedLinkUrl, setEditedLinkUrl] = useState("")
-  const [isEditMode, setEditMode] = useState(false)
-  const [lastSelection, setLastSelection] = useState<
-    RangeSelection | GridSelection | NodeSelection | null
-  >(null)
-
+  const [linkText, setLinkText] = useState("")
   const [anchor, setAnchor] = useState({ x: 0, y: 0, h: 0 })
-  const updateLinkEditor = useCallback(() => {
-    const selection = $getSelection()
-    if ($isRangeSelection(selection)) {
-      const node = getSelectedNode(selection)
-      const parent = node.getParent()
-      if ($isLinkNode(parent)) {
-        setLinkUrl(parent.getURL())
-      } else if ($isLinkNode(node)) {
-        setLinkUrl(node.getURL())
-      } else {
-        setLinkUrl("")
-      }
-    }
-    const editorElem = editorRef.current
-    const nativeSelection = window.getSelection()
-    const activeElement = document.activeElement
-
-    if (editorElem === null) {
-      return
-    }
-
-    const rootElement = editor.getRootElement()
-
-    if (
-      selection !== null &&
-      nativeSelection !== null &&
-      rootElement !== null &&
-      rootElement.contains(nativeSelection.anchorNode) &&
-      editor.isEditable()
-    ) {
-      const domRect: DOMRect | undefined =
-        nativeSelection.focusNode?.parentElement?.getBoundingClientRect()
-      if (domRect) {
-        domRect.y += 40
-        setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem)
-      }
-      setLastSelection(selection)
-    } else if (!activeElement || activeElement.className !== "link-input") {
-      if (rootElement !== null) {
-        setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem)
-      }
-      setLastSelection(null)
-      setEditMode(false)
-      setLinkUrl("")
-    }
-
-    return true
-  }, [anchorElem, editor])
-
-  useEffect(() => {
-    const scrollerElem = anchorElem.parentElement
-
-    const update = () => {
-      editor.getEditorState().read(() => {
-        updateLinkEditor()
-      })
-    }
-
-    window.addEventListener("resize", update)
-
-    if (scrollerElem) {
-      scrollerElem.addEventListener("scroll", update)
-    }
-
-    return () => {
-      window.removeEventListener("resize", update)
-
-      if (scrollerElem) {
-        scrollerElem.removeEventListener("scroll", update)
-      }
-    }
-  }, [anchorElem.parentElement, editor, updateLinkEditor])
-
-  // useEffect(() => {
-  //   if (isEditMode && inputRef.current) {
-  //     inputRef.current.focus()
-  //   }
-  // }, [isEditMode])
 
   useEffect(() => {
     if (isLink) {
-      // editor.getEditorState().read(() => {
-      //   updateLinkEditor()
-      // })
       const nativeSelection = window.getSelection()
       const domRect: DOMRect | undefined =
         nativeSelection?.focusNode?.parentElement?.getBoundingClientRect()
@@ -159,18 +73,30 @@ function FloatingLinkEditor({
         const xOffset = domRect.width > 10 ? 5 : 0
         setAnchor({ x: domRect.x + xOffset, y: domRect.y, h: domRect.height })
       }
-      console.log("# Dom Rect", domRect)
     }
-  }, [isLink, updateLinkEditor])
-  console.log("#linkEditor")
+  }, [isLink])
+
+  useEffect(() => {
+    if (isLink) {
+      editor.getEditorState().read(() => {
+        const { text, url } = getLinkNodeInfo()
+        setLinkText(text)
+        setLinkUrl(url)
+      })
+    }
+  }, [editor, isLink])
 
   return (
     <>
+      <LinkEditorPlugin anchorElem={anchorElem} />
       <NodeEventPlugin
         nodeType={ElementNode}
         eventType={"click"}
         eventListener={(e: Event) => {
-          console.log("#click", e.target)
+          if (isLink) {
+            setIsLink(false)
+            return
+          }
           const selection = $getSelection()
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection)
@@ -186,8 +112,8 @@ function FloatingLinkEditor({
                   node.getTextContentSize(),
                   "text"
                 )
-                $setSelection(selection)
                 setIsLink(true)
+                setLinkUrl(parent.getURL())
               })
               return
             }
@@ -201,19 +127,21 @@ function FloatingLinkEditor({
              *
              * First, inspect the sibling on the left
              */
-            const p = node.getPreviousSibling()
-            const isPrevALink = $isLinkNode(p) && p.getTextContentSize() === 1
+            const leftNode = node.getPreviousSibling()
+            const isPrevALink =
+              $isLinkNode(leftNode) && leftNode.getTextContentSize() === 1
             const cursorRightAfterLink =
               selection.isCollapsed() && selection.anchor.offset === 0
             if (isPrevALink && cursorRightAfterLink) {
               editor.update(() => {
                 const selection = $createRangeSelection()
-                const textNode = p.getFirstChild()
+                const textNode = leftNode.getFirstChild()
                 if (textNode == null) return
                 selection.focus.set(textNode.getKey(), 0, "text")
                 selection.anchor.set(textNode.getKey(), 1, "text")
                 $setSelection(selection)
                 setIsLink(true)
+                setLinkUrl(leftNode.getURL())
               })
               return
             }
@@ -221,9 +149,9 @@ function FloatingLinkEditor({
             /**
              * Inspect the sibling on the right
              */
-            const after = node.getNextSibling()
+            const rightNode = node.getNextSibling()
             const isAfterALink =
-              $isLinkNode(after) && after.getTextContentSize() === 1
+              $isLinkNode(rightNode) && rightNode.getTextContentSize() === 1
             const isCursorRightBeforeLink =
               selection.isCollapsed() &&
               node.getTextContentSize() === selection.anchor.offset
@@ -231,22 +159,19 @@ function FloatingLinkEditor({
             if (isAfterALink && isCursorRightBeforeLink) {
               editor.update(() => {
                 const selection = $createRangeSelection()
-                const textNode = after.getFirstChild()
+                const textNode = rightNode.getFirstChild()
                 if (textNode == null) return
                 selection.focus.set(textNode.getKey(), 0, "text")
                 selection.anchor.set(textNode.getKey(), 1, "text")
                 $setSelection(selection)
                 setIsLink(true)
+                setLinkUrl(rightNode.getURL())
               })
               return
             }
             setIsLink(false)
           }
           setIsLink(false)
-          // return false
-
-          // console.log("#Click on link", e.target)
-          // e.stopPropagation()
         }}
       />
       <Popover.Root open={isLink}>
@@ -255,7 +180,7 @@ function FloatingLinkEditor({
             style={{
               display: isLink ? "block" : "none",
               position: "absolute",
-              opacity: 0,
+              opacity: 1,
               left: anchor.x,
               top: anchor.y,
               height: anchor.h,
@@ -268,26 +193,44 @@ function FloatingLinkEditor({
             side="top"
             align="start"
             arrowPadding={8}
-            collisionPadding={24}
+            collisionPadding={16}
           >
             <Card className="w-[350px]">
-              <Popover.Close className="absolute right-4 top-4" asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsLink(false)}
-                >
-                  <XIcon size={24} />
-                </Button>
-              </Popover.Close>
               <CardHeader>
-                <CardTitle>Create project</CardTitle>
-                <CardDescription>
-                  Deploy your new project in one-click.
+                <div className="flex justify-between items-center gap-x-4 nowrap">
+                  <CardTitle className="truncate">{linkText}</CardTitle>
+                  <div>
+                    <Popover.Close asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsLink(false)}
+                      >
+                        <XIcon size={16} />
+                      </Button>
+                    </Popover.Close>
+                  </div>
+                </div>
+                <CardDescription className="truncate">
+                  <a
+                    href={sanitizeUrl(linkUrl)}
+                    target="_new"
+                    className="underline"
+                  >
+                    {linkUrl}
+                  </a>
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-end items-center gap-4">
-                <Button variant="outline">Edit</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsLink(false)
+                    editor.dispatchCommand(EDIT_LINK_COMMAND, null)
+                  }}
+                >
+                  Edit
+                </Button>
                 <Button
                   variant="destructive"
                   onClick={() => {
@@ -310,50 +253,13 @@ function FloatingLinkEditor({
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
-      {/* {!isLink ? null : isEditMode ? (
-        <div className="bg-blue-200">Edit mode</div>
-      ) : (
-        <div className="link-view">
-          <a
-            href={sanitizeUrl(linkUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="truncate min-w-[80px]"
-          >
-            {linkUrl}
-          </a>
-          <div className="flex nowrap">
-            <Button
-              size="sm"
-              variant="link"
-              onClick={() => {
-                setEditedLinkUrl(linkUrl)
-                setEditMode(true)
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              tabIndex={0}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => {
-                editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
-              }}
-            >
-              Remove
-            </Button>
-          </div>
-        </div>
-      )} */}
     </>
   )
 }
 
 function useFloatingLinkEditorToolbar(
   editor: LexicalEditor,
-  anchorElem: HTMLElement
+  anchorElem?: HTMLElement
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor)
   const [isLink, setIsLink] = useState(false)
@@ -385,7 +291,7 @@ function useFloatingLinkEditorToolbar(
 }
 
 export default function FloatingLinkEditorPlugin({
-  anchorElem = document?.body,
+  anchorElem,
 }: {
   anchorElem?: HTMLElement
 }): JSX.Element | null {

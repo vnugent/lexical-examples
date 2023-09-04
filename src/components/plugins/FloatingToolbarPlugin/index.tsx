@@ -30,7 +30,7 @@ import { getDOMRangeRect } from "@/utils/getDOMRangeRect"
 import { getSelectedNode } from "@/utils/getSelectedNode"
 import { setFloatingElemPosition } from "@/utils/setFloatingElemPosition"
 import { FormatButton } from "./FormatButton"
-import { EDIT_LINK_COMMAND } from "../FloatingLinkEditorPlugin2/LinkEditorPlugin"
+import { EDIT_LINK_COMMAND } from "../FloatingLinkEditorPlugin/LinkEditorPlugin"
 
 function TextFormatFloatingToolbar({
   editor,
@@ -38,22 +38,14 @@ function TextFormatFloatingToolbar({
   isLink,
   isBold,
   isItalic,
-  isUnderline,
-  isCode,
   isStrikethrough,
-  isSubscript,
-  isSuperscript,
 }: {
   editor: LexicalEditor
   anchorElem: HTMLElement
   isBold: boolean
-  isCode: boolean
   isItalic: boolean
   isLink: boolean
   isStrikethrough: boolean
-  isSubscript: boolean
-  isSuperscript: boolean
-  isUnderline: boolean
 }): JSX.Element {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null)
 
@@ -172,7 +164,10 @@ function TextFormatFloatingToolbar({
   }, [editor, updateTextFormatFloatingToolbar])
 
   return (
-    <div ref={popupCharStylesEditorRef} className="floating-text-format-popup">
+    <div
+      ref={popupCharStylesEditorRef}
+      className="floating-text-format-popup bg-popup"
+    >
       {editor.isEditable() && (
         <>
           <FormatButton
@@ -199,39 +194,6 @@ function TextFormatFloatingToolbar({
             ariaLabel="Format text as strikethrough"
             Icon={StrikethroughIcon}
           />
-
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript")
-            }}
-            className={"popup-item spaced " + (isSubscript ? "active" : "")}
-            title="Subscript"
-            aria-label="Format Subscript"
-          >
-            <i className="format subscript" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript")
-            }}
-            className={"popup-item spaced " + (isSuperscript ? "active" : "")}
-            title="Superscript"
-            aria-label="Format Superscript"
-          >
-            <i className="format superscript" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code")
-            }}
-            className={"popup-item spaced " + (isCode ? "active" : "")}
-            aria-label="Insert code block"
-          >
-            <i className="format code" />
-          </button>
           <FormatButton
             active={isLink}
             onClick={insertLink}
@@ -350,10 +312,6 @@ function useFloatingTextFormatToolbar(
       isBold={isBold}
       isItalic={isItalic}
       isStrikethrough={isStrikethrough}
-      isSubscript={isSubscript}
-      isSuperscript={isSuperscript}
-      isUnderline={isUnderline}
-      isCode={isCode}
     />,
     anchorElem
   )

@@ -6,14 +6,13 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin"
 import LexicalClickableLinkPlugin from "@lexical/react/LexicalClickableLinkPlugin"
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary"
 import { ContentEditable } from "@lexical/react/LexicalContentEditable"
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
 
 import editorConfig from "@/components/editorConfig"
 import { SerializerPreview } from "@/components/plugins/SerializerPreview"
 import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
 import FloatingTextFormatToolbarPlugin from "@/components/plugins/FloatingToolbarPlugin"
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin"
-import FloatingLinkEditorPlugin from "@/components/plugins/FloatingLinkEditorPlugin2"
+import FloatingLinkEditorPlugin from "@/components/plugins/FloatingLinkEditorPlugin"
 
 export default function Editor() {
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<
@@ -27,20 +26,24 @@ export default function Editor() {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <Toolbar />
-      <div className="editor-container" ref={onRef}>
+      <div className="editor-container max-w-xl mx-auto mt-12" ref={onRef}>
         <RichTextPlugin
           contentEditable={
-            <ContentEditable className="editor-input" id="editor1" />
+            <ContentEditable
+              className="editor-input"
+              id="editor1"
+              autoFocus
+              spellCheck={false}
+            />
           }
           placeholder={<Placeholder />}
           ErrorBoundary={LexicalErrorBoundary}
         />
       </div>
-      <div className="my-6 flex gap-8">
+      {/* <div className="my-6 flex gap-8">
         <DebugTreePlugin />
         <SerializerPreview />
-      </div>
+      </div> */}
       <HistoryPlugin />
       <LexicalClickableLinkPlugin />
       <LinkPlugin />
@@ -52,18 +55,6 @@ export default function Editor() {
 
 function Placeholder() {
   return <div className="editor-placeholder">Enter some text...</div>
-}
-
-function Toolbar(): JSX.Element {
-  const [editor] = useLexicalComposerContext()
-  const onCreateTask = (e: React.MouseEvent): void => {
-    // editor.dispatchCommand(INSERT_BANNER_COMMAND, undefined)
-  }
-  return (
-    <div className="my-2 flex gap-2">
-      {/* <Button onClick={onCreateTask}>Create Task</Button> */}
-    </div>
-  )
 }
 
 const DEFAULT_INITIAL_STATE = {

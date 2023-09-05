@@ -4,12 +4,12 @@ import { Card, CardHeader, CardDescription, CardTitle } from "./ui/card"
 export interface CardButtonProps {
   href: string
   title: string
-  desc: string
+  summary: string
 }
 export const CardButton: React.FC<CardButtonProps> = ({
   title,
   href,
-  desc,
+  summary,
 }) => {
   return (
     <Link href={href} prefetch={false}>
@@ -17,7 +17,7 @@ export const CardButton: React.FC<CardButtonProps> = ({
         <Card className="w-[320px]">
           <CardHeader className="text-left">
             <CardTitle>{title}</CardTitle>
-            <CardDescription>{desc}</CardDescription>
+            <CardDescription>{summary}</CardDescription>
           </CardHeader>
         </Card>
       </button>

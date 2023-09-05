@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { LexicalComposer } from "@lexical/react/LexicalComposer"
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin"
@@ -26,12 +26,11 @@ export default function Editor() {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container max-w-xl mx-auto mt-12" ref={onRef}>
+      <div className="editor-container" ref={onRef}>
         <RichTextPlugin
           contentEditable={
             <ContentEditable
               className="editor-input"
-              id="editor1"
               autoFocus
               spellCheck={false}
             />
@@ -39,6 +38,12 @@ export default function Editor() {
           placeholder={<Placeholder />}
           ErrorBoundary={LexicalErrorBoundary}
         />
+        {floatingAnchorElem != null && (
+          <>
+            <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
+            <FloatingTextFormatToolbarPlugin anchorElem={floatingAnchorElem} />
+          </>
+        )}
       </div>
       {/* <div className="my-6 flex gap-8">
         <DebugTreePlugin />
@@ -47,8 +52,6 @@ export default function Editor() {
       <HistoryPlugin />
       <LexicalClickableLinkPlugin />
       <LinkPlugin />
-      <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
-      <FloatingTextFormatToolbarPlugin anchorElem={floatingAnchorElem} />
     </LexicalComposer>
   )
 }

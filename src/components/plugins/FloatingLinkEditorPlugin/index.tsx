@@ -7,7 +7,7 @@ import { LinkViewerPlugin } from "./LinkViewerPlugin"
 export default function FloatingLinkEditorPlugin({
   anchorElem,
 }: {
-  anchorElem?: HTMLElement
+  anchorElem: HTMLElement
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext()
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function FloatingLinkEditorPlugin({
   return (
     <>
       <LinkViewerPlugin anchorElem={anchorElem} editor={editor} />
-      <LinkEditorPlugin editor={editor} />
+      <LinkEditorPlugin anchorElem={anchorElem} editor={editor} />
     </>
   )
 }

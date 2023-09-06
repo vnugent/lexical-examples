@@ -18,12 +18,12 @@ export const FormatButton: React.FC<FormatButtonProps> = ({
   return (
     <Button
       onClick={onClick}
-      variant="ghost"
+      variant={active ? "outline" : "ghost"}
       size="sm"
       className={active ? "bg-muted" : ""}
       aria-label={ariaLabel}
     >
-      <Icon size={14} strokeWidth={4} opacity={active ? "1" : "0.55"} />
+      <Icon size={14} strokeWidth={4} opacity={active ? "1" : "0.45"} />
     </Button>
   )
 }

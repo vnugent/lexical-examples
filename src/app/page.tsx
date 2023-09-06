@@ -3,15 +3,15 @@ import { CardButton } from "@/components/CardButton"
 export const EXAMPLES_METADATA = {
   CUSTOM_NODE: {
     href: "/examples/custom-nodes",
-    title: "Embed custom components",
+    title: "Embedded custom components",
     summary: "How to embed custom React components in the editor.",
-    desc: "You can insert a React component inside the editor by implementing your own custom node, extending DecoratorNode.  Lexical treats a Decoration node as a black box which means you're free to render whatever you want.  The possibilities are endless, eg. adding a calendar, a support ticket, or a custom chart, etc.",
+    desc: "You can insert a React component inside the editor by implementing your own custom node, extending the built-in DecoratorNode.  Lexical treats a Decorator node as a black box which means you're free to render whatever you want.  You can embed a calendar or a support ticket...  The possibilities are endless.",
   },
   FLOATING_TOOLBAR: {
     href: "/examples/floating-toolbar",
     title: "Floating toolbar",
     summary: "Text formatting toolbar with a link editing form.",
-    desc: " The floating toolbar is based on the official playground's with two notable differences: 1. Users must click on the link in order to navigate or edit the url.  2. Link view and editing form are built on Shadcn UI Form, Popover and Popover.",
+    desc: " The floating toolbar is based on the official playground's with two notable differences: 1. You have to click on the link in order to open or edit the URL.  2. Link viewer and editing form are built on Shadcn UI Form, Popover and Dialog.",
   },
 }
 

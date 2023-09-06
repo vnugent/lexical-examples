@@ -9,7 +9,7 @@
 import "./index.css"
 
 import { $isCodeHighlightNode } from "@lexical/code"
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link"
+import { $isLinkNode } from "@lexical/link"
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
 import { mergeRegister } from "@lexical/utils"
 import {
@@ -50,11 +50,7 @@ function TextFormatFloatingToolbar({
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null)
 
   const insertLink = useCallback(() => {
-    if (!isLink) {
-      editor.dispatchCommand(EDIT_LINK_COMMAND, null)
-    } else {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
-    }
+    editor.dispatchCommand(EDIT_LINK_COMMAND, null)
   }, [editor, isLink])
 
   function mouseMoveListener(e: MouseEvent) {
@@ -291,7 +287,7 @@ function useFloatingTextFormatToolbar(
     )
   }, [editor, updatePopup])
 
-  if (!isText || isLink) {
+  if (!isText) {
     return null
   }
 

@@ -5,12 +5,12 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 217 33% 17%;
 
-    --card: 0 0% 100%;
+    --card: 48 100% 96%;
     --card-foreground: 222.2 84% 4.9%;
  
-    --popover: 0 0% 100%;
+    --popover: 48 100% 96%;
     --popover-foreground: 222.2 84% 4.9%;
  
     --primary: 222.2 47.4% 11.2%;
@@ -28,11 +28,13 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
+    --border: 24 5% 64%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
  
     --radius: 0.5rem;
+
+    --info: 198 27% 76%;
   }
  
   .dark {
@@ -61,8 +63,11 @@
     --destructive-foreground: 210 40% 98%;
  
     --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --input: 196 64% 24%;
+    --ring: 230 94% 82%;
+
+    --info: 222.2 84% 4.9%;
+
   }
 }
  
@@ -78,11 +83,11 @@
 .editor-input {
   min-height: 150px;
   resize: none;
-  caret-color: rgb(5, 5, 5);
+  caret-color: rgb(113, 27, 90);
   position: relative;
   tab-size: 1;
   caret-color: #444;
-  @apply outline-1 p-2 py-2;
+  @apply px-4 py-2 border rounded outline-slate-700;
 }
 
 .editor-placeholder {
@@ -92,7 +97,7 @@
   user-select: none;
   display: inline-block;
   pointer-events: none;
-  @apply absolute top-2 left-2;
+  @apply absolute top-2 left-4;
 }
 
 .editor-paragraph {
@@ -101,7 +106,7 @@
 }
 
 .editor-container {
-  @apply border-2 relative;
+  @apply relative;
 }
 
 .tree-view-output {

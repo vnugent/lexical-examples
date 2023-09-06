@@ -1,18 +1,37 @@
 "use client"
 import { useState } from "react"
-import { LexicalComposer } from "@lexical/react/LexicalComposer"
+import { $getRoot, $createParagraphNode, $createTextNode } from "lexical"
+import { $createLinkNode } from "@lexical/link"
+import { LinkNode } from "@lexical/link"
+import {
+  InitialConfigType,
+  LexicalComposer,
+} from "@lexical/react/LexicalComposer"
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin"
 import LexicalClickableLinkPlugin from "@lexical/react/LexicalClickableLinkPlugin"
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary"
 import { ContentEditable } from "@lexical/react/LexicalContentEditable"
 
-import editorConfig from "@/components/editorConfig"
 import FloatingTextFormatToolbarPlugin from "@/components/plugins/FloatingToolbarPlugin"
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin"
 import FloatingLinkEditorPlugin from "@/components/plugins/FloatingLinkEditorPlugin"
+import ExampleTheme from "@/components/exampleTheme"
 
+/**
+ * Editor with floating toolbar
+ */
 export default function Editor() {
+  const initialConfig: InitialConfigType = {
+    editorState: prepopulatedRichText,
+    namespace: "floating-toolbar",
+    theme: ExampleTheme,
+    nodes: [LinkNode],
+    onError(error: any) {
+      throw error
+    },
+  }
+
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<
     HTMLDivElement | undefined
   >(undefined)
@@ -23,7 +42,7 @@ export default function Editor() {
   }
 
   return (
-    <LexicalComposer initialConfig={editorConfig}>
+    <LexicalComposer initialConfig={initialConfig}>
       <div className="editor-container" ref={onRef}>
         <RichTextPlugin
           contentEditable={
@@ -54,81 +73,17 @@ function Placeholder() {
   return <div className="editor-placeholder">Enter some text...</div>
 }
 
-const DEFAULT_INITIAL_STATE = {
-  root: {
-    children: [
-      {
-        children: [
-          {
-            detail: 0,
-            format: 0,
-            mode: "normal",
-            style: "",
-            text: "this is a ",
-            type: "text",
-            version: 1,
-          },
-          {
-            children: [
-              {
-                detail: 0,
-                format: 0,
-                mode: "normal",
-                style: "",
-                text: "link",
-                type: "text",
-                version: 1,
-              },
-            ],
-            direction: "ltr",
-            format: "",
-            indent: 0,
-            type: "link",
-            version: 1,
-            rel: "noreferrer",
-            target: null,
-            title: null,
-            url: "https://",
-          },
-          {
-            detail: 0,
-            format: 0,
-            mode: "normal",
-            style: "",
-            text: ".",
-            type: "text",
-            version: 1,
-          },
-        ],
-        direction: "ltr",
-        format: "",
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      },
-      {
-        children: [
-          {
-            detail: 0,
-            format: 0,
-            mode: "normal",
-            style: "",
-            text: "New line.",
-            type: "text",
-            version: 1,
-          },
-        ],
-        direction: "ltr",
-        format: "",
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      },
-    ],
-    direction: "ltr",
-    format: "",
-    indent: 0,
-    type: "root",
-    version: 1,
-  },
+function prepopulatedRichText() {
+  const root = $getRoot()
+  if (root.getFirstChild() === null) {
+    const paragraph = $createParagraphNode()
+    paragraph.append(
+      $createTextNode("This example is built with "),
+      $createLinkNode("https://github.com/facebook/lexical").append(
+        $createTextNode("@lexical/react")
+      ),
+      $createTextNode(".")
+    )
+    root.append(paragraph)
+  }
 }

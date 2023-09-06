@@ -5,14 +5,13 @@ import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link"
 import {
   $getSelection,
   $isRangeSelection,
-  $setSelection,
   ElementNode,
   LexicalEditor,
   $createRangeSelection,
 } from "lexical"
 
 import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { getSelectedNode } from "@/utils/getSelectedNode"
 import { XIcon } from "lucide-react"
 import {
@@ -34,21 +33,29 @@ import { getLinkNodeInfo } from "@/utils/getLinkNodeInfo"
 export const LinkViewerPlugin: React.FC<{
   editor: LexicalEditor
   anchorElem: HTMLElement
-}> = ({ editor, anchorElem: anchorEl }): JSX.Element => {
+}> = ({ editor, anchorElem }): JSX.Element => {
   const [isLink, setIsLink] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
   const [linkText, setLinkText] = useState("")
-  const [anchor, setAnchor] = useState({ x: 0, y: 0, h: 0 })
+  const [anchor, setAnchor] = useState({ x: -1000, y: -1000, h: 0 })
+
+  const updateFloatingAnchor = useCallback(() => {
+    const nativeSelection = window.getSelection()
+    const domRect: DOMRect | undefined =
+      nativeSelection?.focusNode?.parentElement?.getBoundingClientRect()
+    if (domRect != null) {
+      const anchorElementRect = anchorElem.getBoundingClientRect()
+      setAnchor({
+        x: domRect.x - anchorElementRect.left + 5,
+        y: domRect.y - anchorElementRect.top,
+        h: domRect.height,
+      })
+    }
+  }, [anchorElem])
 
   useEffect(() => {
     if (isLink) {
-      const nativeSelection = window.getSelection()
-      const domRect: DOMRect | undefined =
-        nativeSelection?.focusNode?.parentElement?.getBoundingClientRect()
-      if (domRect != null) {
-        const xOffset = domRect.width > 10 ? 5 : 0
-        setAnchor({ x: domRect.x + xOffset, y: domRect.y, h: domRect.height })
-      }
+      updateFloatingAnchor()
     }
   }, [isLink])
 
@@ -61,6 +68,15 @@ export const LinkViewerPlugin: React.FC<{
       })
     }
   }, [editor, isLink])
+
+  useEffect(() => {
+    /**
+     * If text inside the editor is wrapped due to resizing, we need
+     * to update popover anchor.
+     */
+    window.addEventListener("resize", updateFloatingAnchor)
+    return () => window.removeEventListener("resize", updateFloatingAnchor)
+  })
 
   return (
     <>
@@ -75,6 +91,9 @@ export const LinkViewerPlugin: React.FC<{
           const selection = $getSelection()
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection)
+            if (!selection.isCollapsed()) {
+              return
+            }
 
             const parent = node.getParent()
             const isUrl = $isLinkNode(parent)
@@ -102,89 +121,87 @@ export const LinkViewerPlugin: React.FC<{
              *
              * First, inspect the sibling on the left
              */
-            const leftNode = node.getPreviousSibling()
-            const isPrevALink =
-              $isLinkNode(leftNode) && leftNode.getTextContentSize() === 1
-            const cursorRightAfterLink =
-              selection.isCollapsed() && selection.anchor.offset === 0
-            if (isPrevALink && cursorRightAfterLink) {
-              editor.update(() => {
-                const selection = $createRangeSelection()
-                const textNode = leftNode.getFirstChild()
-                if (textNode == null) return
-                selection.focus.set(textNode.getKey(), 0, "text")
-                selection.anchor.set(textNode.getKey(), 1, "text")
-                $setSelection(selection)
-                setIsLink(true)
-                setLinkUrl(leftNode.getURL())
-              })
-              return
-            }
+            // const leftNode = node.getPreviousSibling()
+            // const isPrevALink =
+            //   $isLinkNode(leftNode) && leftNode.getTextContentSize() === 1
+            // const cursorRightAfterLink =
+            //   selection.isCollapsed() && selection.anchor.offset === 0
+            // if (isPrevALink && cursorRightAfterLink) {
+            //   editor.update(() => {
+            //     const selection = $createRangeSelection()
+            //     const textNode = leftNode.getFirstChild()
+            //     if (textNode == null) return
+            //     selection.focus.set(textNode.getKey(), 0, "text")
+            //     selection.anchor.set(textNode.getKey(), 1, "text")
+            //     $setSelection(selection)
+            //     setIsLink(true)
+            //     setLinkUrl(leftNode.getURL())
+            //   })
+            //   return
+            // }
 
             /**
              * Inspect the sibling on the right
              */
-            const rightNode = node.getNextSibling()
-            const isAfterALink =
-              $isLinkNode(rightNode) && rightNode.getTextContentSize() === 1
-            const isCursorRightBeforeLink =
-              selection.isCollapsed() &&
-              node.getTextContentSize() === selection.anchor.offset
+            // const rightNode = node.getNextSibling()
+            // const isAfterALink =
+            //   $isLinkNode(rightNode) && rightNode.getTextContentSize() === 1
+            // const isCursorRightBeforeLink =
+            //   selection.isCollapsed() &&
+            //   node.getTextContentSize() === selection.anchor.offset
 
-            if (isAfterALink && isCursorRightBeforeLink) {
-              editor.update(() => {
-                const selection = $createRangeSelection()
-                const textNode = rightNode.getFirstChild()
-                if (textNode == null) return
-                selection.focus.set(textNode.getKey(), 0, "text")
-                selection.anchor.set(textNode.getKey(), 1, "text")
-                $setSelection(selection)
-                setIsLink(true)
-                setLinkUrl(rightNode.getURL())
-              })
-              return
-            }
+            // if (isAfterALink && isCursorRightBeforeLink) {
+            //   editor.update(() => {
+            //     const selection = $createRangeSelection()
+            //     const textNode = rightNode.getFirstChild()
+            //     if (textNode == null) return
+            //     selection.focus.set(textNode.getKey(), 0, "text")
+            //     selection.anchor.set(textNode.getKey(), 1, "text")
+            //     $setSelection(selection)
+            //     setIsLink(true)
+            //     setLinkUrl(rightNode.getURL())
+            //   })
+            //   return
+            // }
             setIsLink(false)
           }
           setIsLink(false)
         }}
       />
       <Popover.Root open={isLink}>
-        <Popover.Anchor asChild>
+        <Popover.Trigger asChild>
           <div
             style={{
               display: isLink ? "block" : "none",
-              position: "fixed",
+              position: "absolute",
               opacity: 1,
               left: anchor.x,
               top: anchor.y,
               height: anchor.h,
             }}
           />
-        </Popover.Anchor>
-        <Popover.Portal container={anchorEl}>
+        </Popover.Trigger>
+        <Popover.Portal container={anchorElem}>
           <Popover.Content
             sideOffset={2}
             side="top"
             align="start"
             arrowPadding={8}
             collisionPadding={16}
+            onEscapeKeyDown={() => setIsLink(false)}
           >
             <Card className="w-[350px]">
               <CardHeader>
                 <div className="flex justify-between items-center gap-x-4 nowrap">
                   <CardTitle className="truncate">{linkText}</CardTitle>
-                  <div>
-                    <Popover.Close asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsLink(false)}
-                      >
-                        <XIcon size={16} />
-                      </Button>
-                    </Popover.Close>
-                  </div>
+                  <Button
+                    className="-mt-4 -mr-4"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsLink(false)}
+                  >
+                    <XIcon size={16} />
+                  </Button>
                 </div>
                 <CardDescription className="truncate">
                   <a

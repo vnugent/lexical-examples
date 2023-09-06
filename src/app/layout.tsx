@@ -31,11 +31,11 @@ const ForkMe = () => (
       aria-label="View source on GitHub"
     >
       <svg
+        className="fill-foreground"
         width={80}
         height={80}
         viewBox="0 0 250 250"
         style={{
-          fill: "#FD6C6C",
           color: "#fff",
           position: "absolute",
           top: 0,

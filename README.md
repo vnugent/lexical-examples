@@ -1,20 +1,17 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## About
+Facebook [Lexical framework](https://github.com/facebook/lexical) allows you to build powerful text editors (Notion.so is a great example).  While I find the framework a bit easier to work with than [Slate.js](https://github.com/ianstormtaylor/slate), it still requires a lot of bolierplate to implement a basic plain text editor.  This repo contains a few "recipes" that I may need in future projects.
 
-## Getting Started
+Live demo:  https://lexical-examples.vercel.app/
 
-First, run the development server:
+### How to build the project
+
+The project is a standard Next.js app
 
 ```bash
-npm run dev
-# or
 yarn dev
-# or
-pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-npx create-next-app@latest --eslint --src-dir --typescript --use-yarn
+## License
+MIT

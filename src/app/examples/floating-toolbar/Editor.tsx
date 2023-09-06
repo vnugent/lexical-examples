@@ -8,8 +8,6 @@ import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary"
 import { ContentEditable } from "@lexical/react/LexicalContentEditable"
 
 import editorConfig from "@/components/editorConfig"
-import { SerializerPreview } from "@/components/plugins/SerializerPreview"
-import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
 import FloatingTextFormatToolbarPlugin from "@/components/plugins/FloatingToolbarPlugin"
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin"
 import FloatingLinkEditorPlugin from "@/components/plugins/FloatingLinkEditorPlugin"
@@ -45,10 +43,6 @@ export default function Editor() {
           </>
         )}
       </div>
-      {/* <div className="my-6 flex gap-8">
-        <DebugTreePlugin />
-        <SerializerPreview />
-      </div> */}
       <HistoryPlugin />
       <LexicalClickableLinkPlugin />
       <LinkPlugin />

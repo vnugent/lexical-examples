@@ -14,6 +14,7 @@ import editorConfig from "@/components/editorConfig"
 import { SerializerPreview } from "@/components/plugins/SerializerPreview"
 import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
 import { Button } from "@/components/ui/button"
+import { PlusIcon } from "lucide-react"
 
 export default function Editor() {
   return (
@@ -46,8 +47,11 @@ function Toolbar(): JSX.Element {
     editor.dispatchCommand(INSERT_BANNER_COMMAND, undefined)
   }
   return (
-    <div className="my-2 flex gap-2">
-      <Button onClick={onCreateTask}>Create Task</Button>
+    <div className="my-2">
+      <Button onClick={onCreateTask} size="sm" className="gap-2">
+        <PlusIcon />
+        Create Task
+      </Button>
     </div>
   )
 }

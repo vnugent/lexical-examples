@@ -1,8 +1,9 @@
 import { ChangeEventHandler } from "react"
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
-import { TaskNode } from "./TaskPlugin"
 
+import { TaskNode } from "./TaskNode"
 import { Button } from "@/components/ui/button"
+
 interface TaskProps {
   title?: string
   desc?: string

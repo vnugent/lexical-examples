@@ -1,4 +1,6 @@
 "use client"
+import { useEffect } from "react"
+import { PlusIcon } from "lucide-react"
 import { LexicalComposer } from "@lexical/react/LexicalComposer"
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin"
@@ -8,13 +10,12 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 
 import {
   TaskPlugin,
-  INSERT_BANNER_COMMAND,
-} from "@/components/plugins/task/TaskPlugin"
+  INSERT_TASK_COMMAND,
+} from "@/components/plugins/TaskPlugin"
 import editorConfig from "@/components/editorConfig"
 import { SerializerPreview } from "@/components/plugins/SerializerPreview"
 import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
 import { Button } from "@/components/ui/button"
-import { PlusIcon } from "lucide-react"
 
 export default function Editor() {
   return (
@@ -43,9 +44,11 @@ function Placeholder() {
 
 function Toolbar(): JSX.Element {
   const [editor] = useLexicalComposerContext()
+
   const onCreateTask = (e: React.MouseEvent): void => {
-    editor.dispatchCommand(INSERT_BANNER_COMMAND, undefined)
+    editor.dispatchCommand(INSERT_TASK_COMMAND, undefined)
   }
+
   return (
     <div className="my-2">
       <Button onClick={onCreateTask} size="sm" className="gap-2">

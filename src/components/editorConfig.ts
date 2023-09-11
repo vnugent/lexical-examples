@@ -1,5 +1,5 @@
 import { LinkNode } from '@lexical/link'
-import { TaskNode } from '@/components/plugins/task/TaskPlugin'
+import { TaskNode } from '@/components/plugins/TaskPlugin/TaskNode'
 import ExampleTheme from "./exampleTheme"
 
 const editorConfig = {

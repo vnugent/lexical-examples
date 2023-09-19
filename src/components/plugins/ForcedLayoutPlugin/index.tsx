@@ -6,149 +6,125 @@ import {
   ParagraphNode,
   $getRoot,
   $getSelection,
-  RangeSelection,
   $isRangeSelection,
-  $isNodeSelection,
 } from "lexical"
-import { HeadingNode } from "@lexical/rich-text"
+import { HeadingNode, $createHeadingNode } from "@lexical/rich-text"
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
 import { mergeRegister } from "@lexical/utils"
 
-import { $createTitleNode, TitleNode } from "./TitleNode"
 import "./index.css"
 
 /**
- * This plugin enforce an opening H1 that follows by one or more paragraphs.
+ * This plugin enforces an opening H1 that follows by one or more paragraphs.
  */
 export function ForcedLayoutPlugin() {
   const [editor] = useLexicalComposerContext()
 
   useEffect(() => {
-    if (!editor.hasNodes([TitleNode])) {
-      throw new Error("TitleNode plugin not registered on editor")
+    if (!editor.hasNodes([HeadingNode])) {
+      throw new Error("HeadingNode not registered with editor")
     }
 
+    let prevChildSize: number | null = null
+
     return mergeRegister(
-      // editor.registerUpdateListener(
-      //   ({ editorState, normalizedNodes, prevEditorState }) => {
-      //     editorState.read(() => {
-      //       const root = $getRoot()
-      //       // console.log("# ", root.getChildrenSize(), prevEditorState.read())
-      //     })
-      //     console.log("#norm", normalizedNodes)
-      //   }
-      // ),
+      /**
+       * Enforce a single line H1. If the heading is split in 2 by pressing
+       * the enter key, convert the new H1 to a paragraph.
+       */
       editor.registerNodeTransform(HeadingNode, (newNode: HeadingNode) => {
         editor.update(() => {
           const root = $getRoot()
           const firstParagraph = root.getChildAtIndex(1)
-          if (firstParagraph == null) return
-          if (firstParagraph.getKey() === newNode.getKey()) {
-            console.log(
-              "#update heading -> p",
-              firstParagraph.getTextContentSize()
-            )
+          if (firstParagraph?.getKey() === newNode.getKey()) {
             const p = $createParagraphNode()
             p.append($createTextNode(firstParagraph.getTextContent()))
             firstParagraph.replace(p)
-            p.select()
-            //firstParagraph.selectNext()
-            // firstParagraph.remove()
+            p.selectStart()
           }
         })
       }),
+      /**
+       * Pressing Enter while the cursor is at the end of the title will
+       * generate a new paragraph. We simply remove the newly generated
+       * paragraph node and move the cursor down.
+       */
       editor.registerNodeTransform(ParagraphNode, (pNode: ParagraphNode) => {
         editor.update(() => {
           const root = $getRoot()
           const firstParagraph = root.getChildAtIndex(1)
+
           if (root.getChildrenSize() < 3 || firstParagraph == null) return
+
+          const currentSelection = $getSelection()
+
+          if (
+            currentSelection == null ||
+            !$isRangeSelection(currentSelection)
+          ) {
+            return
+          }
+
+          const isCursorOnTitle =
+            currentSelection.isCollapsed() &&
+            currentSelection.anchor.key === firstParagraph.getKey()
 
           if (
             firstParagraph.getKey() == pNode.getKey() &&
-            pNode.getChildrenSize() === 0
+            isCursorOnTitle &&
+            prevChildSize === root.getChildrenSize() - 1
           ) {
-            firstParagraph.remove()
-            console.log("#delete new pNode")
+            pNode.remove()
+            const p = root.getChildAtIndex(1) as ParagraphNode
+            p?.selectEnd()
           }
-          console.log(
-            "#pNode",
-            pNode
-            // pNode,
-            // pNode.getAllTextNodes()
-          )
         })
       }),
+      /**
+       * Initialize the document structure
+       */
       editor.registerNodeTransform(RootNode, (rootNode: RootNode) => {
         editor.update(() => {
-          console.log("# root update", rootNode.getChildren())
-          /**
-           * 1. Handle changes to the 1st child
-           */
           const firstNode = rootNode.getFirstChild()
-
-          // const currentSelection = $getSelection()
-          // if (
-          //   rootNode.getChildrenSize() > 2 &&
-          //   (rootNode.getChildAtIndex(1) as ParagraphNode).isEmpty() &&
-          //   $isRangeSelection(currentSelection)
-          //   // currentSelection.focus.key === rootNode.getChildAtIndex(0)?.getKey()
-          // ) {
-          //   console.log(
-          //     "# remove empty p",
-          //     currentSelection.focus.key,
-          //     rootNode.getChildAtIndex(1),
-          //     $getSelection()
-          //   )
-          //   rootNode.getChildAtIndex(1)?.remove()
-          //   rootNode.getChildAtIndex(1)?.selectNext()
-          //   return
-          // }
 
           if (firstNode == null) {
             return
           }
 
-          // Convert first child (paragraph by default) to title
-          if (firstNode.getType() !== TitleNode.getType()) {
-            console.log("#convert 1st node to title")
-            firstNode.replace($createTitleNode())
+          // Convert first child (a paragraph by default) to an H1 title
+          if (firstNode.getType() !== HeadingNode.getType()) {
+            firstNode.replace($createHeadingNode("h1"))
           }
 
-          // create an empty paragaph following the title
+          // Create an empty paragraph following the title
           if (rootNode.getChildrenSize() === 1) {
             const emptyP = $createParagraphNode()
             rootNode.append(emptyP)
-            return
           }
-          /**
-           * 2. Handle 2nd child (1st paragraph)
-           */
-          const firstParagraph = rootNode.getChildAtIndex(1)
-
-          // console.log(
-          //   "# 1st P",
-          //   rootNode.getChildrenSize(),
-          //   firstParagraph?.getTextContent()
-          // )
-          if (firstParagraph == null || firstNode == null) {
-            return
-          }
-
-          const canConvertToParagraph =
-            firstParagraph.getType() === TitleNode.getType() ||
-            firstParagraph.getType() == HeadingNode.getType()
-
-          // if (canConvertToParagraph) {
-          //   const p = $createParagraphNode()
-          //   p.append($createTextNode(firstParagraph.getTextContent()))
-          //   firstNode.insertAfter(p)
-
-          //   firstParagraph.remove()
-          // }
+          prevChildSize = rootNode.getChildrenSize()
         })
       }),
       /**
-       * Dyanmically add/remove paragraph placeholder CSS
+       * Add/remove H1 placeholder CSS
+       */
+      editor.registerMutationListener(HeadingNode, (nodes, payload) => {
+        editor.getEditorState().read(() => {
+          const root = $getRoot()
+          for (const [key, mutation] of nodes.entries()) {
+            if (mutation === "created" || mutation === "updated") {
+              const titleDiv = editor.getElementByKey(key)
+
+              if (titleDiv === null) continue
+              titleDiv.classList.toggle(
+                "title-placeholder",
+                titleDiv.textContent == null || titleDiv.textContent === ""
+              )
+            }
+          }
+        })
+      }),
+      /**
+       * Add/remove paragraph placeholder CSS
        */
       editor.registerMutationListener(ParagraphNode, (nodes, payload) => {
         editor.getEditorState().read(() => {
@@ -156,8 +132,8 @@ export function ForcedLayoutPlugin() {
           const firstParagraphKey = root.getChildAtIndex(1)?.getKey()
 
           /**
-           * If there are more than 2 (ie at least 1 title + 2 paragraphs)
-           * then clear placeholders.
+           * If there are more than 2 nodes (ie at least 1 title + 2 paragraphs)
+           * then clear paragraph placeholders.
            */
           if (root.getChildrenSize() > 2) {
             const keys = root.getChildrenKeys()

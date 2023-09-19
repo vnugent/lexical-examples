@@ -4,30 +4,25 @@ import {
   InitialConfigType,
   LexicalComposer,
 } from "@lexical/react/LexicalComposer"
-import { DebugTreePlugin } from "@/components/plugins/DebugTreePlugin"
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin"
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin"
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary"
 import { ContentEditable } from "@lexical/react/LexicalContentEditable"
-import { HeadingNode } from "@lexical/rich-text"
+import { HeadingNode, $createHeadingNode } from "@lexical/rich-text"
 
 import ExampleTheme from "@/components/exampleTheme"
 import { ForcedLayoutPlugin } from "@/components/plugins/ForcedLayoutPlugin"
-import {
-  $createTitleNode,
-  TitleNode,
-} from "@/components/plugins/ForcedLayoutPlugin/TitleNode"
 
 /**
  * Editor with forced layout
  */
 export default function Editor() {
   const initialConfig: InitialConfigType = {
-    // editorState: prepopulatedRichText,
+    editorState: prepopulatedRichText,
     namespace: "forced-layout",
     theme: { ...ExampleTheme, titlePlaceholder: "title-placeholder" },
-    nodes: [TitleNode, HeadingNode],
+    nodes: [HeadingNode],
     onError(error: any) {
       throw error
     },
@@ -48,9 +43,6 @@ export default function Editor() {
           ErrorBoundary={LexicalErrorBoundary}
         />
       </div>
-      <div className="my-6">
-        <DebugTreePlugin />
-      </div>
       <HistoryPlugin />
       <ForcedLayoutPlugin />
       <AutoFocusPlugin />
@@ -61,8 +53,12 @@ export default function Editor() {
 function prepopulatedRichText() {
   const root = $getRoot()
 
-  root.append($createTitleNode("My story"))
   root.append(
-    $createParagraphNode().append($createTextNode("This is a paragraph"))
+    $createHeadingNode("h1").append($createTextNode("A Tale of Two Cities"))
+  )
+  root.append(
+    $createParagraphNode().append(
+      $createTextNode("It was the best of times, it was the worst of times.")
+    )
   )
 }

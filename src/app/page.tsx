@@ -17,7 +17,7 @@ export const EXAMPLES_METADATA = {
     href: "/examples/forced-layout",
     title: "Forced layout",
     summary: "Always start the document with an H1 title.",
-    desc: "Lexical doesn't support document schema (issue 3833), you can achieve a similar effect by manipulating the document structure in the node transform listeners.",
+    desc: "While Lexical doesn't currently support document schema (issue 3833), a similar effect can be achieved by manipulating the document structure in the node transform listeners.",
   },
 }
 

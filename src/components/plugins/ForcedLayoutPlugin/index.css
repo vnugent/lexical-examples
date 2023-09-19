@@ -1,0 +1,20 @@
+.title {
+  @apply text-4xl font-medium tracking-tight mb-4;
+}
+.editor-container h1 {
+  @apply title;
+}
+
+.editor-container .title-placeholder::before {
+  content: "Title";
+  @apply absolute title text-foreground/30;
+}
+
+.editor-container .title-placeholder {
+  @apply title text-foreground/60;
+}
+
+.editor-container .paragraph-placeholder::before {
+  content: "Description...";
+  @apply absolute text-foreground/30;
+}

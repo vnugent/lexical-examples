@@ -13,6 +13,12 @@ export const EXAMPLES_METADATA = {
     summary: "Text formatting toolbar with a link editing form.",
     desc: " The floating toolbar is based on the official playground's with two notable differences: 1. You have to click on the link in order to open or edit the URL.  2. Link viewer and editing form are built on Shadcn UI Form, Popover and Dialog.",
   },
+  FORCED_LAYOUT: {
+    href: "/examples/forced-layout",
+    title: "Forced layout",
+    summary: "Text formatting toolbar with a link editing form.",
+    desc: " The floating toolbar is based on the official playground's with two notable differences: 1. You have to click on the link in order to open or edit the URL.  2. Link viewer and editing form are built on Shadcn UI Form, Popover and Dialog.",
+  },
 }
 
 export default function Home() {

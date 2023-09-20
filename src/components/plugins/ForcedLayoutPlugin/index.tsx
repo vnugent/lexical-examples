@@ -33,16 +33,14 @@ export function ForcedLayoutPlugin() {
        * the enter key, convert the new H1 to a paragraph.
        */
       editor.registerNodeTransform(HeadingNode, (newNode: HeadingNode) => {
-        editor.update(() => {
-          const root = $getRoot()
-          const firstParagraph = root.getChildAtIndex(1)
-          if (firstParagraph?.getKey() === newNode.getKey()) {
-            const p = $createParagraphNode()
-            p.append($createTextNode(firstParagraph.getTextContent()))
-            firstParagraph.replace(p)
-            p.selectStart()
-          }
-        })
+        const root = $getRoot()
+        const firstParagraph = root.getChildAtIndex(1)
+        if (firstParagraph?.getKey() === newNode.getKey()) {
+          const p = $createParagraphNode()
+          p.append($createTextNode(firstParagraph.getTextContent()))
+          firstParagraph.replace(p)
+          p.selectStart()
+        }
       }),
       /**
        * Pressing Enter while the cursor is at the end of the title will
@@ -50,59 +48,52 @@ export function ForcedLayoutPlugin() {
        * paragraph node and move the cursor down.
        */
       editor.registerNodeTransform(ParagraphNode, (pNode: ParagraphNode) => {
-        editor.update(() => {
-          const root = $getRoot()
-          const firstParagraph = root.getChildAtIndex(1)
+        const root = $getRoot()
+        const firstParagraph = root.getChildAtIndex(1)
 
-          if (root.getChildrenSize() < 3 || firstParagraph == null) return
+        if (root.getChildrenSize() < 3 || firstParagraph == null) return
 
-          const currentSelection = $getSelection()
+        const currentSelection = $getSelection()
 
-          if (
-            currentSelection == null ||
-            !$isRangeSelection(currentSelection)
-          ) {
-            return
-          }
+        if (currentSelection == null || !$isRangeSelection(currentSelection)) {
+          return
+        }
 
-          const isCursorOnTitle =
-            currentSelection.isCollapsed() &&
-            currentSelection.anchor.key === firstParagraph.getKey()
+        const isCursorOnTitle =
+          currentSelection.isCollapsed() &&
+          currentSelection.anchor.key === firstParagraph.getKey()
 
-          if (
-            firstParagraph.getKey() == pNode.getKey() &&
-            isCursorOnTitle &&
-            prevChildSize === root.getChildrenSize() - 1
-          ) {
-            pNode.remove()
-            const p = root.getChildAtIndex(1) as ParagraphNode
-            p?.selectEnd()
-          }
-        })
+        if (
+          firstParagraph.getKey() == pNode.getKey() &&
+          isCursorOnTitle &&
+          prevChildSize === root.getChildrenSize() - 1
+        ) {
+          pNode.remove()
+          const p = root.getChildAtIndex(1) as ParagraphNode
+          p?.selectEnd()
+        }
       }),
       /**
        * Initialize the document structure
        */
       editor.registerNodeTransform(RootNode, (rootNode: RootNode) => {
-        editor.update(() => {
-          const firstNode = rootNode.getFirstChild()
+        const firstNode = rootNode.getFirstChild()
 
-          if (firstNode == null) {
-            return
-          }
+        if (firstNode == null) {
+          return
+        }
 
-          // Convert first child (a paragraph by default) to an H1 title
-          if (firstNode.getType() !== HeadingNode.getType()) {
-            firstNode.replace($createHeadingNode("h1"))
-          }
+        // Convert first child (a paragraph by default) to an H1 title
+        if (firstNode.getType() !== HeadingNode.getType()) {
+          firstNode.replace($createHeadingNode("h1"))
+        }
 
-          // Create an empty paragraph following the title
-          if (rootNode.getChildrenSize() === 1) {
-            const emptyP = $createParagraphNode()
-            rootNode.append(emptyP)
-          }
-          prevChildSize = rootNode.getChildrenSize()
-        })
+        // Create an empty paragraph following the title
+        if (rootNode.getChildrenSize() === 1) {
+          const emptyP = $createParagraphNode()
+          rootNode.append(emptyP)
+        }
+        prevChildSize = rootNode.getChildrenSize()
       }),
       /**
        * Add/remove H1 placeholder CSS
